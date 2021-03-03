@@ -2,8 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using API.Data;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -11,9 +14,33 @@ namespace API
 {
     public class Program
     {
-        public static void Main(string[] args)
+        // public static void Main(string[] args)
+        // {
+        //     CreateHostBuilder(args).Build().Run();
+        // }
+
+        //below is for dataseeding purpose.
+        public static async Task Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            var host = CreateHostBuilder(args).Build();
+            //So we need to get our service, our data context service so that we can pass it to our seed methord.
+            using var scope = host.Services.CreateScope();
+            var services = scope.ServiceProvider;
+            //So even though we spent a bunch of time setting up a global exception handler, we don't have access to it in this method. 
+            //so let's use try catch block here.
+            try
+            {
+                var context = services.GetRequiredService<DataContext>();
+                await context.Database.MigrateAsync();
+                await Seed.SeedUsers(context);
+            }
+            catch (Exception er)
+            {
+                var logger = services.GetRequiredService<ILogger<Program>>();
+                logger.LogError(er, "An error occoured during migration");
+            }
+
+            await host.RunAsync();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
