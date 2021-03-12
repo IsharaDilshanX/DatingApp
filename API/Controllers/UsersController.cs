@@ -36,5 +36,18 @@ namespace API.Controllers
             return await _userRepository.GetMemberAsync(username);
             //And this one we don't need to wrap inside an OK response. 
         }
+
+        /* [HttpGet("{username}")]
+        public async Task DeleteUser(AppUser member)
+        {
+            await _userRepository.DeleteUser(member); 
+        } */
+
+        [HttpDelete("{username}")]
+        public async Task DeleteUser(string username)
+        {
+            await _userRepository.DeleteUser(username); 
+        }
+        
     }
 }

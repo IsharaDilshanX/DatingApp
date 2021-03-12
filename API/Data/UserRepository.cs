@@ -86,5 +86,26 @@ namespace API.Data
 
             _context.Entry(user).State = EntityState.Modified;
         }
+
+        /* public async Task DeleteUser(AppUser member)
+        {
+            _context.Users.Remove(member);            
+            await _context.SaveChangesAsync();               
+        } */
+
+        public async Task DeleteUser(string username) //GREAT WORK MY MATE! in MyCreations
+        {
+            /* _context.Users.Remove(member => {
+                member => _context.Users.Where(member.username == username)
+            });            
+            await _context.SaveChangesAsync();   */         
+
+            var user = _context.Users.FirstOrDefault(u => u.UserName == username);
+            if(user != null)
+            {
+                _context.Entry(user).State= EntityState.Deleted;
+                await _context.SaveChangesAsync();
+            }    
+        }
     }
 }
